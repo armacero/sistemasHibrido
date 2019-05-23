@@ -30,6 +30,16 @@ class VariableLinguistica {
         }
         return variable;
     }
+    
+     public int m_obtenNumConjuntosxVar() {
+        int cont = 0;
+        for (int i = 0; i < 8; i++) {
+            if (conjuntos[i] != null) {
+                cont++;
+            }
+        }
+        return cont;
+    }
 
     public int obtenLLaveVariable() {
         return this.llave;

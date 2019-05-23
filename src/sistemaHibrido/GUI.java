@@ -390,7 +390,7 @@ public class GUI extends JFrame {
 
                             m_muestraResultadosDifusos(arrayResultadosDifusos);
                             Centroide centroide = new Centroide(variablesLinguisticas);
-                            messages.append("Resultado:"+centroide.procesar(resultados));
+                            messages.append("Resultado:" + centroide.procesar(resultados));
                             //m_muestraResultadosDifusos(arrayResultadosDifusos);
 
                         } catch (IOException ex) {
@@ -442,8 +442,8 @@ public class GUI extends JFrame {
                         JOptionPane.showMessageDialog(cp, "No existe una regla difusa con esa llave.");
                     } else {
                         reglas = reglasDifusas.recuperarTodo();
-                        for(int i = 0; i < reglas.length; i++){
-                            if(reglas[i].llave == llave){
+                        for (int i = 0; i < reglas.length; i++) {
+                            if (reglas[i].llave == llave) {
                                 regla = reglas[i];
                             }
                         }
@@ -494,12 +494,12 @@ public class GUI extends JFrame {
         }
         );
         menuReglas.add(menuItem);
-        
+
         menuItem = new JMenuItem("Importar CSV");
 
-        menuItem.addActionListener(new ActionListener(){
+        menuItem.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent ae){
+            public void actionPerformed(ActionEvent ae) {
                 int result;
                 File file, workingDirectory;
                 JFileChooser chooser = new JFileChooser();
@@ -508,7 +508,7 @@ public class GUI extends JFrame {
                 chooser.setCurrentDirectory(workingDirectory);
                 result = chooser.showOpenDialog(cp);
                 int llave = Integer.parseInt(JOptionPane.showInputDialog(cp, "Primera llave consecutiva", JOptionPane.INPUT_VALUE_PROPERTY));
-                if(result == 0){
+                if (result == 0) {
                     try {
                         file = chooser.getSelectedFile();
                         reglasDifusas.importar(file, llave);
@@ -590,4 +590,37 @@ public class GUI extends JFrame {
             escritor.close();
         }
     }
+
+    /*Metodos referentes al modelo neuronal de HOPFIELD  */
+ /*
+    Metodo que obtiene el numero de competencias almacenadas en el archivo, 
+    asi como el numero de etiquetas que tiene cada uno
+     */
+    public ArrayList<TDA_TAM_VAR> m_obtenNumCompetencias() {
+        sistemaHibrido.VariableLinguistica variables[] = null;
+        ArrayList<TDA_TAM_VAR> arrayTDA = new ArrayList<>();
+        int i;
+        ArrayList<Integer> numVarLing = new ArrayList<>();
+        ArrayList<Integer> numConjuntos = new ArrayList<>();
+        try {
+            variables = variablesLinguisticas.recuperarSecuencial();
+        } catch (IOException ex) {
+            Logger.getLogger(sistemaexpertodifuso.GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (variables != null) {
+            for (i = 0; i < variables.length; i++) {
+                numVarLing.add(variables[i].obtenLLaveVariable());
+                numConjuntos.add(variables[i].m_obtenNumConjuntosxVar());
+            }
+        } else {
+            System.out.println("Hubo un error al recuperar las variables lingüisticas.");
+        }
+        System.out.println("Numero de variables lingusticas en el archivo");
+        for (int j = 0; j < (numVarLing.size() - 1); j++) {
+            System.out.println("Var Lingu: " + numVarLing.get(j) + " Conjuntos: " + numConjuntos.get(j));
+            arrayTDA.add(new TDA_TAM_VAR(numVarLing.get(j), numConjuntos.get(j)));
+        }
+        return arrayTDA;
+    }
+
 }
