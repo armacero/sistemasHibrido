@@ -7,6 +7,7 @@ package sistemaHibrido;
 
 import java.util.ArrayList;
 import java.util.*;
+import sistemaHibrido.GUI.*;
 
 /**
  *
@@ -25,7 +26,7 @@ public static void main(String[] args)
     
 }
 
-public void generar_combinaciones(int num_competencias[])
+public void generar_combinaciones(ArrayList<TDA_TAM_VAR> num_competencias)
 {
     
     int renglon1,renglon2, columna,seguir=0,k2=0;
@@ -34,12 +35,12 @@ public void generar_combinaciones(int num_competencias[])
     int[] V_etiquetas = new int[tamaño];
    
     //por competencias
-    for (int i = 0; i < num_competencias.length; i++) {
+    for (int i = 0; i < num_competencias.size(); i++) {
         int[][] combinaciones = new int[tamaño][tamaño];
-        renglon1 = num_competencias[i];
-        //renglon2 = num_competencias[i]+(num_competencias[i]-1);
-        renglon2=num_competencias[i]-1;
-        columna = num_competencias[i];
+        renglon1 = num_competencias.get(i).numConjuntos;
+        //renglon2 = num_competencias.get(i).numConjuntos+(num_competencias.get(i).numConjuntos-1);
+        renglon2=num_competencias.get(i).numConjuntos-1;
+        columna = num_competencias.get(i).numConjuntos;
         for (int j = 0; j < renglon1; j++) {
             for (int k = 0; k < columna; k++) {
                 if (k==j) {
@@ -73,11 +74,11 @@ public void generar_combinaciones(int num_competencias[])
         arrayCombinaciones.add(combinaciones);
     }
 }
-public int neuronas(int num_competencias[])   
+public int neuronas(ArrayList<TDA_TAM_VAR> num_competencias)   
 {
     int suma=0;
-    for (int i = 0; i < num_competencias.length; i++) {
-        suma=suma+num_competencias[i]+(num_competencias[i]-1);
+    for (int i = 0; i < num_competencias.size(); i++) {
+        suma=suma+num_competencias.get(i).numConjuntos+(num_competencias.get(i).numConjuntos-1);
     }
     return suma;
 }
@@ -85,7 +86,8 @@ public int neuronas(int num_competencias[])
 
 public void generar_PatronesEntrada()
 {
-    int valor=neuronas(valores);
+    //Aqui esta el error dice algo de static y ocupo ese arraylist
+    int valor=neuronas(sistemaHibrido.GUI.m_obtenNumCompetencias());
     int noPatrones = arrayCombinaciones.size()*valor;
     patronesEntrada = new int[noPatrones][noPatrones];
     
