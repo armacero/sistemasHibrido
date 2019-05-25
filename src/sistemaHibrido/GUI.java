@@ -52,10 +52,8 @@ public class GUI extends JFrame {
 
     public ArrayList<int[][]> arrayCombinaciones = new ArrayList<int[][]>();
     public int[] patronGenerado;
-    //public int[] valore = new int[5];
-    public int neurona = 0, cont = 0;
+    public int neurona = 0, cont = 0, tamañoVector = 0;
     public ArrayList<int[]> patronesDeEntrada = new ArrayList<>();
-    public ArrayList<Integer> PatronEntrada = new ArrayList<>();
 
     /*
       ____ _   _ ___ 
@@ -634,16 +632,15 @@ public class GUI extends JFrame {
             System.out.print(p_patronE.get(i) + " ");
         }
         System.out.println("\nPatrones a comparar:");
-        
+
         for (int i = 0; i < p_PatronesGeneradosShow.size(); i++) {
             System.out.println("\nPatron: " + i);
             System.out.println("Tamaño del Patron :" + i + " " + p_PatronesGeneradosShow.get(i).length);
             for (int j = 0; j < 24; j++) {
-                
-                System.out.print(p_PatronesGeneradosShow.get(i)[j] );
+
+                System.out.print(p_PatronesGeneradosShow.get(i)[j]);
             }
         }
-         
 
     }
 
@@ -687,7 +684,7 @@ public class GUI extends JFrame {
             //renglon2 = num_competencias.get(i).numConjuntos+(num_competencias.get(i).numConjuntos-1);
             renglon2 = (num_competencias.get(i).numConjuntos - 1);
             columna = num_competencias.get(i).numConjuntos;
-            //System.out.println("Competencia " + i);
+            System.out.println("Competencia " + i);
             for (int j = 0; j < renglon1; j++) {
                 for (int k = 0; k < columna; k++) {
                     if (k == j) {
@@ -700,12 +697,10 @@ public class GUI extends JFrame {
                     }
 
                 }
-                //System.out.println(imprimeR);
+                System.out.println(imprimeR);
                 imprimeR = "";
                 seguir++;
             }
-            //seguir++;
-            // try {
 
             for (int j = 0; j < renglon2; j++) {
                 for (int k = 0; k < columna - 1; k++) {
@@ -720,25 +715,24 @@ public class GUI extends JFrame {
                         imprimeR += combinaciones[j + seguir][k2] + " ";
                         k2++;
                     }
-
                 }
                 k2 = 0;
-                //System.out.println(imprimeR);
+                System.out.println(imprimeR);
                 imprimeR = "";
             }
             arrayCombinaciones.add(combinaciones);
-            //} catch (Exception e) {
-            //}
             seguir = 0;
         }
     }
 
+    //Metodo para la suma de los conjuntos
+    //se creo una variable tamañoVector publica que guarda el tamaño de los patrones 1xtamañoVector
     public int neuronas(ArrayList<TDA_TAM_VAR> num_competencias) {
         int suma = 0;
         for (int i = 0; i < num_competencias.size(); i++) {
             suma = suma + num_competencias.get(i).numConjuntos + (num_competencias.get(i).numConjuntos - 1);
+            tamañoVector = tamañoVector + num_competencias.get(i).numConjuntos;
         }
-        //System.out.println("ESTO SE MULTIPLICARA POR 8:   "+ suma);
         return suma;
     }
 
@@ -748,17 +742,18 @@ public class GUI extends JFrame {
         int detener = 0;
         int valor = neuronas(m_obtenNumCompetencias());
         int noPatrones = arrayCombinaciones.size() * valor;
-        patronGenerado = new int[noPatrones];
+        neuronas(num_competencias);
+
         String patron = "";
-
+        //Este while es para generar los patrones aleatoriamente
         while (banderaSalida) {
-
+            patronGenerado = new int[tamañoVector];
             //recorrer patrones e insercion
+
             for (int m = 0; m < num_competencias.size(); m++) {
                 int[][] combinaciones = arrayCombinaciones.get(m);
                 int rango = num_competencias.get(m).numConjuntos + (num_competencias.get(m).numConjuntos - 1);
                 int posicion = (int) (Math.random() * rango);
-                //System.out.println("RANGO DE 0 A "+rango+ " VALOR: "+posicion);
                 for (int l = 0; l < (num_competencias.get(m).numConjuntos); l++) {
                     patronGenerado[neurona] = combinaciones[posicion][l];
                     neurona++;
@@ -767,35 +762,36 @@ public class GUI extends JFrame {
 
             }//for de competencias
             boolean entrar = compararPatrones(patronGenerado);
-            //System.out.println(entrar);
-            if (true) {
+            //Si la variable entrar es Verdadera ingresa el patron generado
+            //Si es falso no ingresa el patron
+            if (entrar) {
                 patronesDeEntrada.add(patronGenerado);
                 detener++;
-                //System.out.println("Esto detendra la generacion: " +detener);
-                //System.out.println(patron);
                 patron = "";
             }
+            //aqui si ya se compretaron en numero de combinaciones camabia la bandera a falso y se detiene el While 
             if (detener == noPatrones) {
-                //System.out.println("No debe de entrar aun");
                 banderaSalida = false;
             }
             neurona = 0;
-
         }//terminal el while
     }
 
+    //Esta clase es llamada para comprar el patron generado con los patrones que ya fueron guardados
+    //Si encuentra un patron igual a uno de los guardados en patronesDeEntrada lo ignora y genera otro nuevo
+    // Regresa verdadero o falso
     public boolean compararPatrones(int[] vector) {
         boolean existe = false;
         if (patronesDeEntrada.isEmpty()) {
             existe = true;
         } else {
+
             for (int k = 0; k < patronesDeEntrada.size(); k++) {
-                //System.err.println("Tamaño del arreglo "+patronesDeEntrada.size());
                 int[] linea = patronesDeEntrada.get(k);
-                for (int j = 0; j < linea.length; j++) {
-                    if (linea[j] != vector[j]) {
+                for (int n = 0; n < vector.length; n++) {
+                    if (linea[n] != vector[n]) {
                         existe = true;
-                        //System.out.println("Entra y pone la bandera asi: "+ existe);
+                        break;
                     }
                 }
 
