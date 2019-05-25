@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -50,9 +51,10 @@ public class GUI extends JFrame {
     int variableLinguisticaResultado;
 
     public ArrayList<int[][]> arrayCombinaciones = new ArrayList<int[][]>();
-    public int[][] patronesEntrada;
+    public int[] patronGenerado;
     //public int[] valore = new int[5];
     public int neurona = 0, cont = 0;
+    public ArrayList<int[]> patronesDeEntrada = new ArrayList<>();
 
     /*
       ____ _   _ ___ 
@@ -92,15 +94,30 @@ public class GUI extends JFrame {
     |_|  |_|\___|_| |_|\__,_|*/
     JMenuBar createMenu(Container cp) throws IOException {
         JMenuBar menuBar;
-        JMenu menuVariablesLinguisticas, menuFuzzy, menuReglas;
+        JMenu menuVariablesLinguisticas, menuFuzzy, menuReglas, menuRedNeuronal;
         JMenuItem menuItem;
         menuBar = new JMenuBar();
         menuVariablesLinguisticas = new JMenu("Variables lingüisticas");
         menuFuzzy = new JMenu("Inferencia Difusa");
         menuReglas = new JMenu("Reglas difusas");
+        menuRedNeuronal = new JMenu("Red neuronal");
         menuBar.add(menuVariablesLinguisticas);
         menuBar.add(menuFuzzy);
         menuBar.add(menuReglas);
+        menuBar.add(menuRedNeuronal);
+
+        //Variables lingüisticas-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        menuItem = new JMenuItem("Entrenar Red");
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+
+                generar_combinaciones(m_obtenNumCompetencias());
+                //neuronas(m_obtenNumCompetencias());
+                generar_PatronesEntrada(m_obtenNumCompetencias());
+            }
+        });
+        menuRedNeuronal.add(menuItem);
 
         //Variables lingüisticas-------------------------------------------------------------------------------------------------------------------------------------------------------------------
         menuItem = new JMenuItem("Mostrar las variables lingüisticas");
@@ -629,46 +646,61 @@ public class GUI extends JFrame {
     }
 
     public void generar_combinaciones(ArrayList<TDA_TAM_VAR> num_competencias) {
-
+        String imprimeR = "";
         int renglon1, renglon2, columna, seguir = 0, k2 = 0;
         int competencias = 8, etiqueta = 3;
-        int tamaño = competencias * etiqueta;
-        int[] V_etiquetas = new int[tamaño];
 
+        //int[] V_etiquetas = new int[tamaño];
         //por competencias
         for (int i = 0; i < num_competencias.size(); i++) {
-            int[][] combinaciones = new int[tamaño][tamaño];
+            int[][] combinaciones = new int[num_competencias.get(i).numConjuntos + (num_competencias.get(i).numConjuntos - 1)][num_competencias.get(i).numConjuntos];
             renglon1 = num_competencias.get(i).numConjuntos;
             //renglon2 = num_competencias.get(i).numConjuntos+(num_competencias.get(i).numConjuntos-1);
-            renglon2 = num_competencias.get(i).numConjuntos - 1;
+            renglon2 = (num_competencias.get(i).numConjuntos - 1);
             columna = num_competencias.get(i).numConjuntos;
+            System.out.println("Competencia " + i);
             for (int j = 0; j < renglon1; j++) {
                 for (int k = 0; k < columna; k++) {
                     if (k == j) {
                         combinaciones[j][k] = 1;
+                        imprimeR += combinaciones[j][k] + " ";
 
                     } else {
                         combinaciones[j][k] = (-1);
+                        imprimeR += combinaciones[j][k] + " ";
                     }
 
                 }
+                System.out.println(imprimeR);
+                imprimeR = "";
                 seguir++;
             }
-            seguir++;
+            //seguir++;
+            // try {
+
             for (int j = 0; j < renglon2; j++) {
-                for (int k = 0; k < columna; k++) {
+                for (int k = 0; k < columna - 1; k++) {
                     if (k == j) {
                         combinaciones[j + seguir][k] = 1;
+                        imprimeR += combinaciones[j + seguir][k] + " ";
                         combinaciones[j + seguir][k + 1] = 1;
+                        imprimeR += combinaciones[j + seguir][k + 1] + " ";
                         k2 = k + 2;
                     } else {
                         combinaciones[j + seguir][k2] = (-1);
+                        imprimeR += combinaciones[j + seguir][k2] + " ";
+                        k2++;
                     }
-                    k2++;
+
                 }
                 k2 = 0;
+                System.out.println(imprimeR);
+                imprimeR = "";
             }
             arrayCombinaciones.add(combinaciones);
+            //} catch (Exception e) {
+            //}
+            seguir = 0;
         }
     }
 
@@ -677,33 +709,75 @@ public class GUI extends JFrame {
         for (int i = 0; i < num_competencias.size(); i++) {
             suma = suma + num_competencias.get(i).numConjuntos + (num_competencias.get(i).numConjuntos - 1);
         }
+        //System.out.println("ESTO SE MULTIPLICARA POR 8:   "+ suma);
         return suma;
     }
 
-    public void generar_PatronesEntrada() {
+    public void generar_PatronesEntrada(ArrayList<TDA_TAM_VAR> num_competencias) {
         //Aqui esta el error dice algo de static y ocupo ese arraylist
+        boolean banderaSalida = true;
+        int  detener=0;
         int valor = neuronas(m_obtenNumCompetencias());
         int noPatrones = arrayCombinaciones.size() * valor;
+        patronGenerado = new int[noPatrones];
+        String patron = "";
 
-        patronesEntrada = new int[noPatrones][noPatrones];
+        while (banderaSalida) {
 
-        for (int i = 0; i < 10; i++) {
-            int[][] competencia = arrayCombinaciones.get(i);
             //recorrer patrones e insercion
-            for (int j = 0; j < noPatrones; j++) {
-                for (int k = 0; k < competencia.length; k++) {
-                    for (int l = 0; l < competencia[k].length; l++) {
-                        patronesEntrada[i][neurona] = competencia[cont][l];
-                        neurona++;
-                    }
-                    //neurona=0;
-                    competencia = arrayCombinaciones.get(k);
-                }
-                cont = 0;
-            }
+            
+            for (int m = 0; m < num_competencias.size(); m++) {
+                int[][] combinaciones = arrayCombinaciones.get(m);
+                int rango = num_competencias.get(m).numConjuntos + (num_competencias.get(m).numConjuntos - 1);
+                int posicion = (int) (Math.random() * rango);
+                System.out.println("RANGO DE 0 A "+rango+ " VALOR: "+posicion);
+                for (int l = 0; l < (num_competencias.get(m).numConjuntos); l++) {
+                    patronGenerado[neurona] = combinaciones[posicion][l];
+                    neurona++;
+                    patron += combinaciones[posicion][l] + " ";
+                }//for de columnas
 
+            }//for de competencias
+            boolean entrar = compararPatrones(patronGenerado);
+            System.out.println(entrar);
+            if (true) {
+                patronesDeEntrada.add(patronGenerado);
+                detener++;
+                System.out.println("Esto detendra la generacion: " +detener);
+                System.out.println(patron);
+                patron="";
+            }
+            if (detener==noPatrones) {
+                System.out.println("No debe de entrar aun");
+                banderaSalida=false;
+            }
             neurona = 0;
+            
+        }//terminal el while
+    }
+
+    public boolean compararPatrones(int[] vector) {
+        boolean existe = false;
+        if (patronesDeEntrada.isEmpty()) {
+             existe=true;
         }
+        else
+        {
+            for (int k = 0; k < patronesDeEntrada.size(); k++) {
+                //System.err.println("Tamaño del arreglo "+patronesDeEntrada.size());
+                int[] linea = patronesDeEntrada.get(k);
+                for (int j = 0; j < linea.length; j++) {
+                    if (linea[j] != vector[j]) {
+                        existe = true;
+                        System.out.println("Entra y pone la bandera asi: "+ existe);
+                    }
+                }
+
+            }
+           
+        }
+
+        return existe;
     }
 
 }
