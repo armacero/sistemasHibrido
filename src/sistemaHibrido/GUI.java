@@ -54,6 +54,7 @@ public class GUI extends JFrame {
     public int[] patronGenerado;
     public int neurona = 0, cont = 0, tamañoVector = 0;
     public ArrayList<int[]> patronesDeEntrada = new ArrayList<>();
+    public ArrayList<Integer> PatronEntrada = new ArrayList<>();
 
     /*
       ____ _   _ ___ 
@@ -627,22 +628,43 @@ public class GUI extends JFrame {
     asi como el numero de etiquetas que tiene cada uno
      */
     public void m_obtenerPatronesATrabajar(ArrayList<Integer> p_patronE, ArrayList<int[]> p_PatronesGeneradosShow) {
-        System.out.println("Patron de entrada:");
+        System.out.println("Tamaño del Patron de entrada:" + p_patronE.size());
         for (int i = 0; i < p_patronE.size(); i++) {
             System.out.print(p_patronE.get(i) + " ");
         }
         System.out.println("\nPatrones a comparar:");
-
         for (int i = 0; i < p_PatronesGeneradosShow.size(); i++) {
-            System.out.println("\nPatron: " + i);
-            System.out.println("Tamaño del Patron :" + i + " " + p_PatronesGeneradosShow.get(i).length);
-            for (int j = 0; j < 24; j++) {
 
-                System.out.print(p_PatronesGeneradosShow.get(i)[j]);
+            System.out.println("\nTamaño del Patron :" + i + " " + p_PatronesGeneradosShow.get(i).length);
+            for (int j = 0; j < p_PatronesGeneradosShow.get(i).length; j++) {
+
+                System.out.print(" " + p_PatronesGeneradosShow.get(i)[j]);
             }
         }
 
+        //Calculo de la matrizPesos
     }
+
+    //Metodo que obtiene todos los patrones generados, y realiza la sumatoria de
+    //W = Sumatoria(PiT * Pi)-I
+    public void m_calculaMatrizPesos(ArrayList<int[]> p_PatronesGeneradosShow) {
+
+        for (int i = 0; i < p_PatronesGeneradosShow.size(); i++) {
+            int[] pi = p_PatronesGeneradosShow.get(i);
+            int[] piT = pi;
+            int[][] pixpiT = new int[pi.length][piT.length];
+            
+            for (int j = 0; j < piT.length; j++) {
+                for (int k = 0; k < pi.length; k++) {
+                  pixpiT[j][i] = piT[j] * pi[k];
+                }
+            }
+
+        }
+
+    }
+
+    
 
     public ArrayList<TDA_TAM_VAR> m_obtenNumCompetencias() {
         sistemaHibrido.VariableLinguistica variables[] = null;
@@ -664,9 +686,11 @@ public class GUI extends JFrame {
             System.out.println("Hubo un error al recuperar las variables lingüisticas.");
         }
         //System.out.println("Numero de variables lingusticas en el archivo");
-        for (int j = 0; j < (numVarLing.size() - 1); j++) {
+        for (int j = 0; j < (numVarLing.size()); j++) {
             //System.out.println("Var Lingu: " + numVarLing.get(j) + " Conjuntos: " + numConjuntos.get(j));
+
             arrayTDA.add(new TDA_TAM_VAR(numVarLing.get(j), numConjuntos.get(j)));
+
         }
         return arrayTDA;
     }
@@ -731,7 +755,7 @@ public class GUI extends JFrame {
         int suma = 0;
         for (int i = 0; i < num_competencias.size(); i++) {
             suma = suma + num_competencias.get(i).numConjuntos + (num_competencias.get(i).numConjuntos - 1);
-            tamañoVector = tamañoVector + num_competencias.get(i).numConjuntos;
+            //tamañoVector = tamañoVector + num_competencias.get(i).numConjuntos;
         }
         return suma;
     }
@@ -742,7 +766,7 @@ public class GUI extends JFrame {
         int detener = 0;
         int valor = neuronas(m_obtenNumCompetencias());
         int noPatrones = arrayCombinaciones.size() * valor;
-        neuronas(num_competencias);
+        sumaTamaño(num_competencias);
 
         String patron = "";
         //Este while es para generar los patrones aleatoriamente
@@ -802,4 +826,9 @@ public class GUI extends JFrame {
         return existe;
     }
 
+    public void sumaTamaño(ArrayList<TDA_TAM_VAR> num_competencias) {
+        for (int i = 0; i < num_competencias.size(); i++) {
+            tamañoVector = tamañoVector + num_competencias.get(i).numConjuntos;
+        }
+    }
 }
