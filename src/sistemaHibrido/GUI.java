@@ -730,7 +730,7 @@ public class GUI extends JFrame {
                 int[][] combinaciones = arrayCombinaciones.get(m);
                 int rango = num_competencias.get(m).numConjuntos + (num_competencias.get(m).numConjuntos - 1);
                 int posicion = (int) (Math.random() * rango);
-                System.out.println("RANGO DE 0 A "+rango+ " VALOR: "+posicion);
+                //System.out.println("RANGO DE 0 A "+rango+ " VALOR: "+posicion);
                 for (int l = 0; l < (num_competencias.get(m).numConjuntos); l++) {
                     patronGenerado[neurona] = combinaciones[posicion][l];
                     neurona++;
