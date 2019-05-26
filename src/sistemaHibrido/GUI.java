@@ -57,6 +57,7 @@ public class GUI extends JFrame {
     public ArrayList<Integer> PatronEntrada = new ArrayList<>();
     private int[][] matrizIdentidad;
     ArrayList<int[][]> restapixpiT_I = new ArrayList<>();
+    public int[][] matrizPesos;
 
     /*
       ____ _   _ ___ 
@@ -673,9 +674,10 @@ public class GUI extends JFrame {
                     pixpiT[j][k] = piT[j] * pi[k];
                     pixpiT_I[j][k] = pixpiT[j][k] - matrizIdentidad[j][k];
                     //A las matricez resutlante se le resta la matriz identidad
-                    restapixpiT_I.add(pixpiT_I);//Almaceno la matriz resultante de cada patron para despues sumarla
+                    
                 }
             }
+            restapixpiT_I.add(pixpiT_I);//Almaceno la matriz resultante de cada patron para despues sumarla
         }
         
         
@@ -879,6 +881,40 @@ public class GUI extends JFrame {
     public void sumaTamaño(ArrayList<TDA_TAM_VAR> num_competencias) {
         for (int i = 0; i < num_competencias.size(); i++) {
             tamañoVector = tamañoVector + num_competencias.get(i).numConjuntos;
+        }
+    }
+    
+    
+    public int[] funcionEscalon(int[] patronE) {
+        int[] patronResultado = new int[patronE.length];
+        //recorremos el patron
+        for (int i = 0; i < patronE.length; i++) {
+            //si es mayor o igual a 0 se ingresa 1 al nuevo patron, sino ingresa -1
+            if (patronE[i] >= 0) {
+                patronResultado[i] = 1;
+            } else {
+                patronResultado[i] = -1;
+            }
+        }
+        return patronResultado;
+    }
+
+    public void metodoMatrizPesos(ArrayList<int[][]> todasMatrices) {
+        try {
+            matrizPesos = new int[todasMatrices.get(0).length][todasMatrices.get(0).length];
+            
+            for (int i = 0; i < todasMatrices.size(); i++) {
+                int[][] matriz = todasMatrices.get(i);
+                int[][] siguienteMatriz = todasMatrices.get(i + 1);
+                for (int j = 0; j < matriz.length; j++) {
+                    for (int k = 0; k < matriz.length; k++) {
+                        matrizPesos[j][k] = matrizPesos[j][k] + matriz[j][k] + siguienteMatriz[j][k];
+                    }
+                    
+                }
+
+            }
+        } catch (Exception e) {
         }
     }
 }
