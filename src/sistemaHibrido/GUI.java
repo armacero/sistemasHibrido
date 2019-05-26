@@ -121,6 +121,7 @@ public class GUI extends JFrame {
                 generar_PatronesEntrada(m_obtenNumCompetencias());
 
                 m_obtenerPatronesATrabajar(PatronEntrada, patronesDeEntrada);
+                
             }
         });
         menuRedNeuronal.add(menuItem);
@@ -921,5 +922,19 @@ public class GUI extends JFrame {
             }
         } catch (Exception e) {
         }
+    }
+    
+    public int[] funcionEntrada(int[][] matrizdePesos, int[] entrada)
+    {
+        int suma=0;
+        int[] patronSalida = new int[matrizdePesos.length];
+        for (int i = 0; i < patronSalida.length; i++) {
+            for (int j = 0; j < patronSalida.length; j++) {
+                suma+=matrizdePesos[j][i]*entrada[j];
+                System.out.println(""+suma);
+            }
+            patronSalida[i]=suma;
+        }
+        return patronSalida;
     }
 }
