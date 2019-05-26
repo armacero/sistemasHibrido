@@ -58,6 +58,7 @@ public class GUI extends JFrame {
     private int[][] matrizIdentidad;
     ArrayList<int[][]> restapixpiT_I = new ArrayList<>();
     public int[][] matrizPesos;
+    private int[] vectorSalida;
 
     /*
       ____ _   _ ___ 
@@ -692,15 +693,46 @@ public class GUI extends JFrame {
         
         System.out.println("\n\n SUMATORIA DE LAS MATRICES");
         m_muestraMatriz(matrizPesos);
+        
+        GeneraPatronSalida(PatronEntrada, matrizPesos);
+        
+        System.out.println("PATRON DE SALIDAAA");
+        for (int i = 0; i < vectorSalida.length; i++) {
+            System.out.print(" " + vectorSalida[i]);
+        }
+        
+        vectorSalida = funcionEscalon(vectorSalida);
+        System.out.println("\nPATRON DE SALIDAAA con la funcion escalon");
+        for (int i = 0; i < vectorSalida.length; i++) {
+            System.out.print(" " + vectorSalida[i]);
+        }
+        
 
     }
+    
+    
+    
+    public void GeneraPatronSalida(ArrayList<Integer> p_patronE, int [][] matrizPesos) {
+        //Funciona de entrada
+        int suma = 0;
+        vectorSalida = new int[p_patronE.size()];
+        for (int i = 0; i < p_patronE.size(); i++) {
+            for (int j = 0; j < p_patronE.size(); j++) {
+                suma += matrizPesos[j][i] * p_patronE.get(j);
+            }
+            vectorSalida[i] = suma;
+            suma = 0;
+        }
+    }
+    
     
     
     public void m_muestraMatriz(int[][] p_matriz) {
         for (int x = 0; x < p_matriz.length; x++) {
             for (int y = 0; y < p_matriz[x].length; y++) {
                 System.out.print(" | " + p_matriz[x][y] + " | ");
-            }   
+            }
+            System.out.println();
         }
     }
 
