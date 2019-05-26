@@ -655,11 +655,13 @@ public class GUI extends JFrame {
         
         
         
+        
     }
 
     //Metodo que obtiene todos los patrones generados, y realiza la sumatoria de
     //W = Sumatoria(PiT * Pi)-I
     public void m_calculaMatrizPesos(ArrayList<int[]> p_PatronesGeneradosShow) {
+        System.out.println("PATRONES QUE ENTRAN AL METODO " + p_PatronesGeneradosShow.size());
         m_generaMatrizIdentidad(p_PatronesGeneradosShow.get(0), p_PatronesGeneradosShow.get(0));
 
        restapixpiT_I = new ArrayList<>();
@@ -680,11 +682,16 @@ public class GUI extends JFrame {
             restapixpiT_I.add(pixpiT_I);//Almaceno la matriz resultante de cada patron para despues sumarla
         }
         
+        metodoMatrizPesos(restapixpiT_I);
         
-        for (int i = 0; i < restapixpiT_I.size(); i++) {
-            System.out.println("MATRIZ GENERADA NUMERO :" + i);
-            m_muestraMatriz(restapixpiT_I.get(i));
-        }
+        
+//        for (int i = 0; i < restapixpiT_I.size(); i++) {
+//            System.out.println("MATRIZ GENERADA NUMERO :" + i);
+//            m_muestraMatriz(restapixpiT_I.get(i));
+//        }
+        
+        System.out.println("\n\n SUMATORIA DE LAS MATRICES");
+        m_muestraMatriz(matrizPesos);
 
     }
     
@@ -693,23 +700,21 @@ public class GUI extends JFrame {
         for (int x = 0; x < p_matriz.length; x++) {
             for (int y = 0; y < p_matriz[x].length; y++) {
                 System.out.print(" | " + p_matriz[x][y] + " | ");
-            }
-            System.out.println("\n----------------------------------------");
-
+            }   
         }
     }
 
     public void m_generaMatrizIdentidad(int[] pi, int[] piT) {
         //int num_ne = pi.length * piT.length;
-        matrizIdentidad = new int[pi.length][piT.length];
-        for (int i = 0; i < piT.length; i++) {
-            for (int j = 0; j < piT.length; j++) {
+        matrizIdentidad = new int[pi.length][pi.length];
+        for (int i = 0; i < pi.length; i++) {
+            for (int j = 0; j < pi.length; j++) {
                 if (i == j) {
                     matrizIdentidad[i][i] = 1;
                 } else {
                     matrizIdentidad[i][i] = 0;
                 }
-                System.out.print(matrizIdentidad[i][i]);
+                System.out.print(matrizIdentidad[i][j]);
 
             }
             System.out.print("\n");
@@ -760,7 +765,7 @@ public class GUI extends JFrame {
             //renglon2 = num_competencias.get(i).numConjuntos+(num_competencias.get(i).numConjuntos-1);
             renglon2 = (num_competencias.get(i).numConjuntos - 1);
             columna = num_competencias.get(i).numConjuntos;
-            System.out.println("Competencia " + i);
+            //System.out.println("Competencia " + i);
             for (int j = 0; j < renglon1; j++) {
                 for (int k = 0; k < columna; k++) {
                     if (k == j) {
@@ -773,7 +778,7 @@ public class GUI extends JFrame {
                     }
 
                 }
-                System.out.println(imprimeR);
+                //System.out.println(imprimeR);
                 imprimeR = "";
                 seguir++;
             }
@@ -793,7 +798,7 @@ public class GUI extends JFrame {
                     }
                 }
                 k2 = 0;
-                System.out.println(imprimeR);
+                //System.out.println(imprimeR);
                 imprimeR = "";
             }
             arrayCombinaciones.add(combinaciones);
