@@ -55,6 +55,8 @@ public class GUI extends JFrame {
     public int neurona = 0, cont = 0, tamañoVector = 0;
     public ArrayList<int[]> patronesDeEntrada = new ArrayList<>();
     public ArrayList<Integer> PatronEntrada = new ArrayList<>();
+    private int[][] matrizIdentidad;
+    ArrayList<int[][]> restapixpiT_I = new ArrayList<>();
 
     /*
       ____ _   _ ___ 
@@ -628,43 +630,91 @@ public class GUI extends JFrame {
     asi como el numero de etiquetas que tiene cada uno
      */
     public void m_obtenerPatronesATrabajar(ArrayList<Integer> p_patronE, ArrayList<int[]> p_PatronesGeneradosShow) {
-        System.out.println("Tamaño del Patron de entrada:" + p_patronE.size());
-        for (int i = 0; i < p_patronE.size(); i++) {
-            System.out.print(p_patronE.get(i) + " ");
-        }
-        System.out.println("\nPatrones a comparar:");
-        for (int i = 0; i < p_PatronesGeneradosShow.size(); i++) {
-
-            System.out.println("\nTamaño del Patron :" + i + " " + p_PatronesGeneradosShow.get(i).length);
-            for (int j = 0; j < p_PatronesGeneradosShow.get(i).length; j++) {
-
-                System.out.print(" " + p_PatronesGeneradosShow.get(i)[j]);
-            }
-        }
+//        System.out.println("Tamaño del Patron de entrada:" + p_patronE.size());
+//        for (int i = 0; i < p_patronE.size(); i++) {
+//            System.out.print(p_patronE.get(i) + " ");
+//        }
+//        System.out.println("\nPatrones a comparar:");
+//        for (int i = 0; i < p_PatronesGeneradosShow.size(); i++) {
+//
+//            System.out.println("\nTamaño del Patron :" + i + " " + p_PatronesGeneradosShow.get(i).length);
+//            for (int j = 0; j < p_PatronesGeneradosShow.get(i).length; j++) {
+//
+//                System.out.print(" " + p_PatronesGeneradosShow.get(i)[j]);
+//            }
+//        }
 
         //Calculo de la matrizPesos
+        System.out.println("Muestra las matrices generadas de aplicar la operacion (PiT * Pi)-I");
+        m_calculaMatrizPesos(p_PatronesGeneradosShow);
+        
+        
+        
+        
+        
+        
+        
     }
 
     //Metodo que obtiene todos los patrones generados, y realiza la sumatoria de
     //W = Sumatoria(PiT * Pi)-I
     public void m_calculaMatrizPesos(ArrayList<int[]> p_PatronesGeneradosShow) {
+        m_generaMatrizIdentidad(p_PatronesGeneradosShow.get(0), p_PatronesGeneradosShow.get(0));
 
+       restapixpiT_I = new ArrayList<>();
         for (int i = 0; i < p_PatronesGeneradosShow.size(); i++) {
             int[] pi = p_PatronesGeneradosShow.get(i);
             int[] piT = pi;
-            int[][] pixpiT = new int[pi.length][piT.length];
-            
-            for (int j = 0; j < piT.length; j++) {
+            int[][] pixpiT = new int[pi.length][pi.length];
+            int[][] pixpiT_I = new int[pi.length][pi.length];
+
+            for (int j = 0; j < pi.length; j++) {
                 for (int k = 0; k < pi.length; k++) {
-                  pixpiT[j][i] = piT[j] * pi[k];
+                    pixpiT[j][k] = piT[j] * pi[k];
+                    pixpiT_I[j][k] = pixpiT[j][k] - matrizIdentidad[j][k];
+                    //A las matricez resutlante se le resta la matriz identidad
+                    restapixpiT_I.add(pixpiT_I);//Almaceno la matriz resultante de cada patron para despues sumarla
                 }
             }
-
+        }
+        
+        
+        for (int i = 0; i < restapixpiT_I.size(); i++) {
+            System.out.println("MATRIZ GENERADA NUMERO :" + i);
+            m_muestraMatriz(restapixpiT_I.get(i));
         }
 
     }
-
     
+    
+    public void m_muestraMatriz(int[][] p_matriz) {
+        for (int x = 0; x < p_matriz.length; x++) {
+            for (int y = 0; y < p_matriz[x].length; y++) {
+                System.out.print(" | " + p_matriz[x][y] + " | ");
+            }
+            System.out.println("\n----------------------------------------");
+
+        }
+    }
+
+    public void m_generaMatrizIdentidad(int[] pi, int[] piT) {
+        //int num_ne = pi.length * piT.length;
+        matrizIdentidad = new int[pi.length][piT.length];
+        for (int i = 0; i < piT.length; i++) {
+            for (int j = 0; j < piT.length; j++) {
+                if (i == j) {
+                    matrizIdentidad[i][i] = 1;
+                } else {
+                    matrizIdentidad[i][i] = 0;
+                }
+                System.out.print(matrizIdentidad[i][i]);
+
+            }
+            System.out.print("\n");
+        }
+        System.out.println();
+
+    }
 
     public ArrayList<TDA_TAM_VAR> m_obtenNumCompetencias() {
         sistemaHibrido.VariableLinguistica variables[] = null;
