@@ -13,6 +13,8 @@ public class Centroide {
     }
 	
     public Double procesar(List<ResultadoDifuso> resultados) throws IOException {
+        System.out.println("ENTRO AL PROCESAR DEL CENTRIDE");
+        System.out.println("Tamaño de resultados difusosos " + resultados.size());
         Double numerador = 0.0;
         Double denominador = 0.0;
 

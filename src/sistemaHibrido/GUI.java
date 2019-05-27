@@ -49,6 +49,8 @@ public class GUI extends JFrame {
     JLabel[] nombres;
     JSlider[] sliders;
     int variableLinguisticaResultado;
+    int variableLinguisticaResultadoRedNeuronal;
+    double ortogonalidad = 0;
 
     public ArrayList<int[][]> arrayCombinaciones = new ArrayList<int[][]>();
     public int[] patronGenerado;
@@ -59,6 +61,8 @@ public class GUI extends JFrame {
     ArrayList<int[][]> restapixpiT_I = new ArrayList<>();
     public int[][] matrizPesos;
     private int[] vectorSalida;
+    private sistemaHibrido.VariableConjunto var_conjunto;
+
 
     /*
       ____ _   _ ___ 
@@ -104,28 +108,10 @@ public class GUI extends JFrame {
         menuVariablesLinguisticas = new JMenu("Variables lingüisticas");
         menuFuzzy = new JMenu("Inferencia Difusa");
         menuReglas = new JMenu("Reglas difusas");
-        menuRedNeuronal = new JMenu("Red neuronal");
+
         menuBar.add(menuVariablesLinguisticas);
         menuBar.add(menuFuzzy);
         menuBar.add(menuReglas);
-        menuBar.add(menuRedNeuronal);
-
-        //Variables lingüisticas-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        menuItem = new JMenuItem("Entrenar Red");
-        menuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-
-                generar_combinaciones(m_obtenNumCompetencias());
-                //neuronas(m_obtenNumCompetencias
-
-                generar_PatronesEntrada(m_obtenNumCompetencias());
-
-                m_obtenerPatronesATrabajar(PatronEntrada, patronesDeEntrada);
-                
-            }
-        });
-        menuRedNeuronal.add(menuItem);
 
         //Variables lingüisticas-------------------------------------------------------------------------------------------------------------------------------------------------------------------
         menuItem = new JMenuItem("Mostrar las variables lingüisticas");
@@ -415,15 +401,21 @@ public class GUI extends JFrame {
                                 }
                             }
 
-                            ArchivoReglas archivo = new ArchivoReglas();
-                            List<ResultadoDifuso> resultados = MaxMin.procesar(Arrays.asList(archivo.recuperarTodo()), arrayResultadosDifusos);
+                            //ArchivoReglas archivo = new ArchivoReglas();
+                            // Metodos del modelo neuronal 
+                            generar_combinaciones(m_obtenNumCompetencias());
+                            generar_PatronesEntrada(m_obtenNumCompetencias());
+                            m_obtenerPatronesATrabajar(PatronEntrada, patronesDeEntrada);
+                            
+
+                            List<ResultadoDifuso> resultados = MaxMin.procesar(Arrays.asList(reglasDifusas.recuperarTodo()), arrayResultadosDifusos);
 
                             for (ResultadoDifuso resultadoDifuso : resultados) {
                                 messages.append("Difusificación: Llave variable linguistica: " + resultadoDifuso.variableConjunto.llaveVariableLiguistica + "\n");
                                 messages.append("Difusificación: Llave del conjunto: " + resultadoDifuso.variableConjunto.llaveConjunto + "\n");
                                 messages.append("Difusificación: Resultado difuso: " + resultadoDifuso.valor + "\n\n");
                             }
-
+                            messages.append("Resultados difusos \n");
                             m_muestraResultadosDifusos(arrayResultadosDifusos);
                             Centroide centroide = new Centroide(variablesLinguisticas);
                             messages.append("Resultado:" + centroide.procesar(resultados));
@@ -455,7 +447,7 @@ public class GUI extends JFrame {
                         JOptionPane.showMessageDialog(cp, "Ya existe una regla difusa con esa llave.");
                     } else {
                         regla = new ReglaDifusa(llave);
-                        new FormularioReglasDifusas(regla, reglasDifusas, false, variablesLinguisticas);
+
                     }
                 } catch (IOException ex) {
                     Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -632,41 +624,23 @@ public class GUI extends JFrame {
     Metodo que obtiene el numero de competencias almacenadas en el archivo, 
     asi como el numero de etiquetas que tiene cada uno
      */
-    public void m_obtenerPatronesATrabajar(ArrayList<Integer> p_patronE, ArrayList<int[]> p_PatronesGeneradosShow) {
-//        System.out.println("Tamaño del Patron de entrada:" + p_patronE.size());
-//        for (int i = 0; i < p_patronE.size(); i++) {
-//            System.out.print(p_patronE.get(i) + " ");
-//        }
-//        System.out.println("\nPatrones a comparar:");
-//        for (int i = 0; i < p_PatronesGeneradosShow.size(); i++) {
-//
-//            System.out.println("\nTamaño del Patron :" + i + " " + p_PatronesGeneradosShow.get(i).length);
-//            for (int j = 0; j < p_PatronesGeneradosShow.get(i).length; j++) {
-//
-//                System.out.print(" " + p_PatronesGeneradosShow.get(i)[j]);
-//            }
-//        }
+    public VariableConjunto m_obtenerPatronesATrabajar(ArrayList<Integer> p_patronE, ArrayList<int[]> p_PatronesGeneradosShow) {
 
         //Calculo de la matrizPesos
-        System.out.println("Muestra las matrices generadas de aplicar la operacion (PiT * Pi)-I");
+//        System.out.println("Muestra las matrices generadas de aplicar la operacion (PiT * Pi)-I");
         m_calculaMatrizPesos(p_PatronesGeneradosShow);
-        
-        
-        
-        
-        
-        
-        
-        
+
+        return var_conjunto;
+
     }
 
     //Metodo que obtiene todos los patrones generados, y realiza la sumatoria de
     //W = Sumatoria(PiT * Pi)-I
     public void m_calculaMatrizPesos(ArrayList<int[]> p_PatronesGeneradosShow) {
-        System.out.println("PATRONES QUE ENTRAN AL METODO " + p_PatronesGeneradosShow.size());
+//        System.out.println("PATRONES QUE ENTRAN AL METODO " + p_PatronesGeneradosShow.size());
         m_generaMatrizIdentidad(p_PatronesGeneradosShow.get(0), p_PatronesGeneradosShow.get(0));
 
-       restapixpiT_I = new ArrayList<>();
+        restapixpiT_I = new ArrayList<>();
         for (int i = 0; i < p_PatronesGeneradosShow.size(); i++) {
             int[] pi = p_PatronesGeneradosShow.get(i);
             int[] piT = pi;
@@ -678,42 +652,259 @@ public class GUI extends JFrame {
                     pixpiT[j][k] = piT[j] * pi[k];
                     pixpiT_I[j][k] = pixpiT[j][k] - matrizIdentidad[j][k];
                     //A las matricez resutlante se le resta la matriz identidad
-                    
+
                 }
             }
             restapixpiT_I.add(pixpiT_I);//Almaceno la matriz resultante de cada patron para despues sumarla
         }
-        
+
         metodoMatrizPesos(restapixpiT_I);
-        
-        
+
 //        for (int i = 0; i < restapixpiT_I.size(); i++) {
 //            System.out.println("MATRIZ GENERADA NUMERO :" + i);
 //            m_muestraMatriz(restapixpiT_I.get(i));
 //        }
-        
-        System.out.println("\n\n SUMATORIA DE LAS MATRICES");
-        m_muestraMatriz(matrizPesos);
-        
+//        System.out.println("\n\n SUMATORIA DE LAS MATRICES, MATRIZ DE PESOS W");
+//        m_muestraMatriz(matrizPesos);
         GeneraPatronSalida(PatronEntrada, matrizPesos);
-        
-        System.out.println("PATRON DE SALIDAAA");
-        for (int i = 0; i < vectorSalida.length; i++) {
-            System.out.print(" " + vectorSalida[i]);
-        }
-        
+
+//        System.out.println("PATRON DE SALIDAAA");
+//        for (int i = 0; i < vectorSalida.length; i++) {
+//            System.out.print(" " + vectorSalida[i]);
+//        }
         vectorSalida = funcionEscalon(vectorSalida);
-        System.out.println("\nPATRON DE SALIDAAA con la funcion escalon");
-        for (int i = 0; i < vectorSalida.length; i++) {
-            System.out.print(" " + vectorSalida[i]);
-        }
-        
+//        System.out.println("\nPATRON DE SALIDAAA con la funcion escalon");
+//        for (int i = 0; i < vectorSalida.length; i++) {
+//            System.out.print(" " + vectorSalida[i]);
+//        }
+
+//        System.out.println("\n Patron de entrada: ");
+//        for (int i = 0; i < PatronEntrada.size(); i++) {
+//            System.out.print(" " + PatronEntrada.get(i));
+//        }
+        m_MapearRegla(vectorSalida);
 
     }
-    
-    
-    
-    public void GeneraPatronSalida(ArrayList<Integer> p_patronE, int [][] matrizPesos) {
+
+    public void m_MapearRegla(int[] p_pastronSalida) {
+        //Quitar los ultimos 3 elementos del array
+//        System.out.println("\nPATRON DE SALIDA SIN LA VARIABLE DE SALIDA");
+//        for (int i = 0; i < (p_pastronSalida.length - 3); i++) {
+//            System.out.print(" " + p_pastronSalida[i]);
+//        }
+        ArrayList<TDA_TAM_VAR> arrayTDA = new ArrayList<>();
+        ArrayList<Mapeado> arrayMapeado = new ArrayList<>();
+        arrayTDA = m_obtenNumCompetencias();
+
+//        System.out.println("\nCOMPETENCIAS Y SUS ETIQUETAS");
+//        for (int i = 0; i < (arrayTDA.size() - 1); i++) {
+//            System.out.println(arrayTDA.get(i).id_varLin + " " + arrayTDA.get(i).numConjuntos);
+//        }
+        int[] Conju = null;
+        int controla = 0;
+        for (int i = 0; i < arrayTDA.size(); i++) {
+            Conju = new int[arrayTDA.get(i).numConjuntos];
+            for (int j = 0; j < arrayTDA.get(i).numConjuntos; j++) {
+                Conju[j] = p_pastronSalida[controla];
+                controla++;
+            }
+            Mapeado mapeado = new Mapeado(Conju);
+            arrayMapeado.add(mapeado);
+        }
+
+        // System.out.println("MAPEADO JALANDO:  " + arrayMapeado.size());
+//        for (int i = 0; i < (arrayMapeado.size() - 1); i++) {
+//            System.out.println("\nId var linguistica " + arrayMapeado.get(i).id_VarLinguis);
+//            for (int j = 0; j < arrayMapeado.get(i).p_patron.length; j++) {
+//
+//                System.out.print(" " + arrayMapeado.get(i).p_patron[j]);
+//            }
+//        }
+//
+//        for (int i = 0; i < (arrayMapeado.size() - 1); i++) {
+//            System.out.println("\nId var linguistica " + arrayMapeado.get(i).id_VarLinguis);
+//            for (int j = 0; j < arrayMapeado.get(i).p_patron.length; j++) {
+//                System.out.print(" " + arrayMapeado.get(i).p_patron[j]);
+//            }
+//        }
+        String p_cadenaReglaDifusa = "";
+        String p_cadenaReglaDifusa2 = "";
+
+        int[] p_patron1 = {-1, -1, 1};//Bueno*
+        int[] p_patron2 = {-1, 1, -1};//Regular*
+        int[] p_patron3 = {1, -1, -1};//Malo*
+        int[] p_patron4 = {-1, 1, 1};//Bueno/Regular*
+        int[] p_patron5 = {1, 1, -1};//Malo,Regular*
+
+        int[] p_patron7 = {1, -1, -1, -1};//Excelente
+        int[] p_patron8 = {-1, 1, -1, -1};//Bueno
+        int[] p_patron9 = {-1, -1, 1, -1};//Regular
+        int[] p_patron10 = {-1, -1, -1, 1};//Malo
+        int[] p_patron11 = {1, 1, -1, -1};//Excelente/Bueno
+        int[] p_patron12 = {-1, 1, 1, -1};//Bueno/Regular
+        int[] p_patron13 = {-1, -1, 1, 1};//Regular/Malo
+
+        //Patrones de 3 entradas
+        int llave_conjunto = 0;
+        int suma_malos = 0;
+        int suma_regulares = 0;
+        int suma_buenos = 0;
+        int suma_excelentes = 0;
+        VariableConjunto consecuente = null;
+        VariableConjunto antecedente;
+        ArrayList<VariableConjunto> antecedentess = new ArrayList<>();
+        for (int i = 0; i < (arrayMapeado.size() - 1); i++) {
+            //Si el array del mapeo es igual a [-1 -1 1]-->Bueno (i,2)
+            if (m_comparaVectores(arrayMapeado.get(i).getP_patron(), p_patron1)) {
+                p_cadenaReglaDifusa = p_cadenaReglaDifusa + "(" + i + "," + "2" + ")^";
+                llave_conjunto = 2;
+                suma_buenos++;
+                antecedente = new VariableConjunto(i, 2);
+                antecedentess.add(antecedente);
+            } //Si el  array del mapeo es igual a [-1 1 -1]-->Regular (i,1)
+            else if (m_comparaVectores(arrayMapeado.get(i).getP_patron(), p_patron2)) {
+                p_cadenaReglaDifusa = p_cadenaReglaDifusa + "(" + i + "," + "1" + ")^";
+                llave_conjunto = 1;
+                suma_regulares++;
+                antecedente = new VariableConjunto(i, 1);
+                antecedentess.add(antecedente);
+            }////Si el array del mapeo es igual a [1 -1 -1]-->Malo (i,0)
+            else if (m_comparaVectores(arrayMapeado.get(i).getP_patron(), p_patron3)) {
+                p_cadenaReglaDifusa = p_cadenaReglaDifusa + "(" + i + "," + "0" + ")^";
+                llave_conjunto = 0;
+                suma_malos++;
+                antecedente = new VariableConjunto(i, 0);
+                antecedentess.add(antecedente);
+            }//Si el  array del mapeo es igual a [-1, 1, 1]-->Bueno y regular (i,2) y (i,1)
+            else if (m_comparaVectores(arrayMapeado.get(i).getP_patron(), p_patron4)) {
+                p_cadenaReglaDifusa = p_cadenaReglaDifusa + "(" + i + "," + "2" + ")^";
+                llave_conjunto = 2;
+                suma_buenos++;
+                p_cadenaReglaDifusa2 = p_cadenaReglaDifusa + "(" + i + "," + "1" + ")^";
+                antecedente = new VariableConjunto(i, 2);
+                antecedentess.add(antecedente);
+            }//Si el  array del mapeo es igual a [1, 1, -1]-->Malo y regular (i,2) y (i,1)
+            else if (m_comparaVectores(arrayMapeado.get(i).getP_patron(), p_patron5)) {
+                p_cadenaReglaDifusa = p_cadenaReglaDifusa + "(" + i + "," + "1" + ")^";
+                llave_conjunto = 1;
+                suma_regulares++;
+                p_cadenaReglaDifusa2 = p_cadenaReglaDifusa + "(" + i + "," + "0" + ")^";
+                antecedente = new VariableConjunto(i, 1);
+                antecedentess.add(antecedente);
+            } //Patrones de 4 entradas
+            //Si el array del mapeo es igual a [-1 -1 -1 1]-->Excelente (i,3)
+            else if (m_comparaVectores(arrayMapeado.get(i).getP_patron(), p_patron7)) {
+                p_cadenaReglaDifusa = p_cadenaReglaDifusa + "(" + i + "," + "3" + ")^";
+                llave_conjunto = 3;
+                suma_excelentes++;
+                antecedente = new VariableConjunto(i, 3);
+                antecedentess.add(antecedente);
+            }//Si el array del mapeo es igual a [-1 -1 1 -1]-->Bueno (i,2)
+            else if (m_comparaVectores(arrayMapeado.get(i).getP_patron(), p_patron8)) {
+                llave_conjunto = 2;
+                suma_buenos++;
+                p_cadenaReglaDifusa = p_cadenaReglaDifusa + "(" + i + "," + "2" + ")^";
+                antecedente = new VariableConjunto(i, 2);
+                antecedentess.add(antecedente);
+            }//Si el array del mapeo es igual a [-1 1 -1 -1]-->Regular (i,1)
+            else if (m_comparaVectores(arrayMapeado.get(i).getP_patron(), p_patron9)) {
+                llave_conjunto = 1;
+                suma_regulares++;
+                p_cadenaReglaDifusa = p_cadenaReglaDifusa + "(" + i + "," + "1" + ")^";
+                antecedente = new VariableConjunto(i, 1);
+                antecedentess.add(antecedente);
+            }//Si el array del mapeo es igual a [1 -1 -1 -1]-->Malo (i,0)
+            else if (m_comparaVectores(arrayMapeado.get(i).getP_patron(), p_patron10)) {
+                llave_conjunto = 0;
+                suma_malos++;
+                p_cadenaReglaDifusa = p_cadenaReglaDifusa + "(" + i + "," + "0" + ")^";
+                antecedente = new VariableConjunto(i, 0);
+                antecedentess.add(antecedente);
+            }//Si el array del mapeo es igual a [1 -1 1 1]-->Excelente y Bueno (i,3) (i,2)
+            else if (m_comparaVectores(arrayMapeado.get(i).getP_patron(), p_patron11)) {
+                llave_conjunto = 3;
+                suma_excelentes++;
+                p_cadenaReglaDifusa = p_cadenaReglaDifusa + "(" + i + "," + "3" + ")^";
+                p_cadenaReglaDifusa2 = p_cadenaReglaDifusa + "(" + i + "," + "2" + ")^";
+                antecedente = new VariableConjunto(i, 3);
+                antecedentess.add(antecedente);
+            }//Si el array del mapeo es igual a [1 1 1 -1]--> Bueno y Regular (i,2)(i,1)
+            else if (m_comparaVectores(arrayMapeado.get(i).getP_patron(), p_patron12)) {
+                llave_conjunto = 2;
+                suma_buenos++;
+                p_cadenaReglaDifusa = p_cadenaReglaDifusa + "(" + i + "," + "2" + ")^";
+                p_cadenaReglaDifusa2 = p_cadenaReglaDifusa + "(" + i + "," + "1" + ")^";
+                antecedente = new VariableConjunto(i, 2);
+                antecedentess.add(antecedente);
+            }//Si el array del mapeo es igual a [1 1 1 -1]--> Regular y Malo (i,1)(i,0)
+            else if (m_comparaVectores(arrayMapeado.get(i).getP_patron(), p_patron13)) {
+                llave_conjunto = 1;
+                suma_regulares++;
+                p_cadenaReglaDifusa = p_cadenaReglaDifusa + "(" + i + "," + "1" + ")^";
+                p_cadenaReglaDifusa2 = p_cadenaReglaDifusa + "(" + i + "," + "0" + ")^";
+                antecedente = new VariableConjunto(i, 1);
+                antecedentess.add(antecedente);
+            }
+
+            if (suma_buenos > suma_excelentes && suma_buenos > suma_malos && suma_buenos > suma_regulares) {
+                consecuente = new VariableConjunto(9, 2);
+            }
+            if (suma_excelentes > suma_buenos && suma_excelentes > suma_malos && suma_excelentes > suma_regulares) {
+                consecuente = new VariableConjunto(9, 3);
+            }
+            if (suma_regulares > suma_excelentes && suma_regulares > suma_malos && suma_regulares > suma_buenos) {
+                consecuente = new VariableConjunto(9, 1);
+            }
+            if (suma_malos > suma_excelentes && suma_malos > suma_buenos && suma_malos > suma_regulares) {
+                consecuente = new VariableConjunto(9, 0);
+            }
+
+        }
+
+        agregarReglaDifusa(1, antecedentess, consecuente);
+
+        var_conjunto = consecuente;
+
+        System.out.println("REGLA DIFUSA GENERADA");
+        System.out.println(p_cadenaReglaDifusa);
+        //System.out.println(p_cadenaReglaDifusa2);
+
+    }
+
+    public void agregarReglaDifusa(int id_llave, ArrayList<VariableConjunto> p_antecedentes, VariableConjunto consecuente) {
+        //Eliminar archivo reglas difusas
+        eliminarArchivoReglasDifusas();
+        System.out.println("REEGLAAAAA DIFUSAAAAAAAAAAAAAAAA AGREGADAAAAAAAAAAAAAAAAAAAAAA");
+        int llave = id_llave;
+        ReglaDifusa regla;
+        try {
+            if (reglasDifusas.existe(llave)) {
+                System.out.println("Ya existe una regla difusa con esa llave.");
+            } else {
+                regla = new ReglaDifusa(llave, p_antecedentes, consecuente);
+                reglasDifusas.insertar(regla);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public static void eliminarArchivoReglasDifusas() {
+        File fichero = new File("C:\\Users\\joseh\\Desktop\\sistemasHibrido\\reglasDifusas");
+        if (!fichero.exists()) {
+            System.out.println("El archivo reglas difusas no existe.");
+        } else {
+            fichero.delete();
+            System.out.println("El archivo reglas difusas fue eliminado.");
+        }
+
+    }
+
+    public boolean m_comparaVectores(int[] p_1, int[] p_2) {
+        return java.util.Arrays.equals(p_1, p_2);
+    }
+
+    public void GeneraPatronSalida(ArrayList<Integer> p_patronE, int[][] matrizPesos) {
         //Funciona de entrada
         int suma = 0;
         vectorSalida = new int[p_patronE.size()];
@@ -725,9 +916,7 @@ public class GUI extends JFrame {
             suma = 0;
         }
     }
-    
-    
-    
+
     public void m_muestraMatriz(int[][] p_matriz) {
         for (int x = 0; x < p_matriz.length; x++) {
             for (int y = 0; y < p_matriz[x].length; y++) {
@@ -778,9 +967,7 @@ public class GUI extends JFrame {
         //System.out.println("Numero de variables lingusticas en el archivo");
         for (int j = 0; j < (numVarLing.size()); j++) {
             //System.out.println("Var Lingu: " + numVarLing.get(j) + " Conjuntos: " + numConjuntos.get(j));
-
             arrayTDA.add(new TDA_TAM_VAR(numVarLing.get(j), numConjuntos.get(j)));
-
         }
         return arrayTDA;
     }
@@ -921,8 +1108,7 @@ public class GUI extends JFrame {
             tamañoVector = tamañoVector + num_competencias.get(i).numConjuntos;
         }
     }
-    
-    
+
     public int[] funcionEscalon(int[] patronE) {
         int[] patronResultado = new int[patronE.length];
         //recorremos el patron
@@ -940,7 +1126,7 @@ public class GUI extends JFrame {
     public void metodoMatrizPesos(ArrayList<int[][]> todasMatrices) {
         try {
             matrizPesos = new int[todasMatrices.get(0).length][todasMatrices.get(0).length];
-            
+
             for (int i = 0; i < todasMatrices.size(); i++) {
                 int[][] matriz = todasMatrices.get(i);
                 int[][] siguienteMatriz = todasMatrices.get(i + 1);
@@ -948,24 +1134,23 @@ public class GUI extends JFrame {
                     for (int k = 0; k < matriz.length; k++) {
                         matrizPesos[j][k] = matrizPesos[j][k] + matriz[j][k] + siguienteMatriz[j][k];
                     }
-                    
+
                 }
 
             }
         } catch (Exception e) {
         }
     }
-    
-    public int[] funcionEntrada(int[][] matrizdePesos, int[] entrada)
-    {
-        int suma=0;
+
+    public int[] funcionEntrada(int[][] matrizdePesos, int[] entrada) {
+        int suma = 0;
         int[] patronSalida = new int[matrizdePesos.length];
         for (int i = 0; i < patronSalida.length; i++) {
             for (int j = 0; j < patronSalida.length; j++) {
-                suma+=matrizdePesos[j][i]*entrada[j];
-                System.out.println(""+suma);
+                suma += matrizdePesos[j][i] * entrada[j];
+                System.out.println("" + suma);
             }
-            patronSalida[i]=suma;
+            patronSalida[i] = suma;
         }
         return patronSalida;
     }
