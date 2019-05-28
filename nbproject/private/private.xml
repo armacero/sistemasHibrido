@@ -12,9 +12,14 @@
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/joseh/Desktop/sistemasHibrido/src/sistemaHibrido/VariablesLinguisticas.java</file>
+            <file>file:/C:/Users/joseh/Desktop/sistemasHibrido/src/sistemaHibrido/Centroide.java</file>
+            <file>file:/C:/Users/joseh/Desktop/sistemasHibrido/src/sistemaHibrido/ArchivoReglas.java</file>
+            <file>file:/C:/Users/joseh/Desktop/sistemasHibrido/src/sistemaHibrido/ReglaDifusa.java</file>
             <file>file:/C:/Users/joseh/Desktop/sistemasHibrido/src/sistemaHibrido/GUI.java</file>
+            <file>file:/C:/Users/joseh/Desktop/sistemasHibrido/src/sistemaHibrido/ResultadoDifuso.java</file>
             <file>file:/C:/Users/joseh/Desktop/sistemasHibrido/src/sistemaHibrido/SistemaExpertoDifuso.java</file>
+            <file>file:/C:/Users/joseh/Desktop/sistemasHibrido/src/sistemaHibrido/Mapeado.java</file>
+            <file>file:/C:/Users/joseh/Desktop/sistemasHibrido/src/sistemaHibrido/MaxMin.java</file>
         </group>
     </open-files>
 </project-private>
